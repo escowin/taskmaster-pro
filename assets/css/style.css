@@ -5,3 +5,7 @@ ul.list-group {
 * {
   text-transform: lowercase;
 }
+
+h1, h2 {
+  font-variant: small-caps;
+}
