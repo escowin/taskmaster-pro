@@ -33,7 +33,6 @@ var loadTasks = function() {
 
   // loop over object properties
   $.each(tasks, function(list, arr) {
-    console.log(list, arr);
     // then loop over sub-array
     arr.forEach(function(task) {
       createTask(task.text, task.date, list);
@@ -95,3 +94,10 @@ $("#remove-tasks").on("click", function() {
 loadTasks();
 
 
+/* 5.1.5 notes
+
+EVENT LISTENER
+  <div id="task-form-modal"><button class="btn-primary"></></>
+JQuery  $("#task-form-modal .btn-primary").click(function() {});
+    JS  document.querySelector("#task-form-modal .btn-primary").addEventListener("click", function() {});
+/*
