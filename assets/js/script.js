@@ -243,5 +243,10 @@ $("#remove-tasks").on("click", function() {
   saveTasks();
 });
 
+// date picker | <input id="modalDueDate">datepicker()</>
+$("#modalDueDate").datepicker({
+  minDate: 1  // min due-date | one day from current date (tomorrow). cannot select a past date
+});
+
 // load tasks for the first time
 loadTasks();
