@@ -125,6 +125,44 @@ $("#task-form-modal .btn-primary").click(function() {
   }
 });
 
+// due date clicked
+$(".list-group").on("click", "span", function() {
+  // get current text
+  var date = $(this).text().trim();
+
+  // create <input type="text"></>
+  var dateInput = $("<input>").attr("type", "text").addClass("form-control").val(date);
+
+  // swap out element | <input class="form-control">
+  $(this).replaceWith(dateInput);
+
+  // css  input:focus {}
+  dateInput.trigger("focus");
+  console.log(dateInput);
+})
+
+// value of DUE DATE changed
+$(".list-group").on("blur", "input[type='text']", function() {
+  // get current text
+  var date = $(this).val().trim();
+
+  // get parent <ul> #id
+  var status = $(this).closest(".list-group").attr("id").replace("list-", "");
+
+  // get <li> position in <ul>
+  var index = $(this).closest(".list-group-item").index();
+
+  // update task in [], resave to localStorage
+  tasks[status][index].date = date;
+  saveTasks();
+
+  // recreate span element with bootstrap classes | <span class="badge badge-primary badge-pill"></>
+  var taskSpan = $("<span>").addClass("badge badge-primary badge-pill").text(date);
+
+  // replace input with span element | <input> to <span>
+  $(this).replaceWith(taskSpan);
+});
+
 // remove all tasks
 $("#remove-tasks").on("click", function() {
   for (var key in tasks) {
