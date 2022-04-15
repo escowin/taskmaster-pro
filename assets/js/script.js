@@ -173,5 +173,66 @@ $("#remove-tasks").on("click", function() {
   saveTasks();
 });
 
+// sortable & draggable | targets <... class="card list-group">...</>. can drag <li> into other <ul> with same class
+// js | pageContentEl.addEventListener("dragstart", function(event) {});
+$(".card .list-group").sortable({
+  connectWith: $(".card .list-group"),
+  tolerance: "pointer",
+  helper: "clone",  //  prevents click events from triggering original element
+  activate: function(event) { //  activate & deactivate | events trigger: all conencted <ul>, dragging starts & stops
+    console.log("activate", this);
+  },
+  deactive: function(event) {
+    console.log("deactivate", this);
+  },
+  over: function(event) { //  over & out | event trigger: dragged <li> enters or leaves connected <ul>
+    console.log("over", event.target);
+  },
+  out: function(event) {
+    console.log("out", event.target);
+  },
+  update: function(event) { //  update | event trigger: <ul> contents has changed (reordered, removed, added <li>)
+    // array to store the task data
+    var tempArr = [];
+
+    // loops over current set of children in sortable list
+    $(this).children().each(function() {
+      var text = $(this).find("p").text().trim();
+
+      var date = $(this).find("span").text().trim();
+
+      // add task data to tempArr[] as an object
+      tempArr.push({
+        text: text,
+        date: date
+      });
+    });
+
+    // trim down <ul> #id to match object property
+    // <li> reassigned from <ul id="list-toDo"> to <ul id="list-inProgress">
+    var arrName = $(this).attr("id").replace("list-", "");
+
+    // update array on tasks object and save
+    tasks[arrName] = tempArr;
+    saveTasks;
+  }
+});
+
+// droppable jQueryUI
+$("#trash").droppable({
+  accept: ".card .list-group-item",
+  tolerance: "touch",
+  drop: function(event, ui) {
+    ui.draggable.remove();  //  removes <li class="card list-group-item">...</> from DOM
+    console.log("drop");
+  },
+  over: function(event, ui) {
+    console.log("over");
+  },
+  out: function(event, ui) {
+    console.log("out");
+  }
+});
+
 // load tasks for the first time
 loadTasks();
