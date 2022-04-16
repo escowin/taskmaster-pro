@@ -71,6 +71,7 @@ var auditTask = function(taskEl) {
   else if (Math.abs(moment().diff(time, "days")) <= 2) {
     $(taskEl).addClass("list-group-item-warning");
   }
+  console.log(taskEl);
 };
 
 // enable draggable/sortable feature on list-group elements
@@ -286,9 +287,12 @@ $("#remove-tasks").on("click", function() {
   saveTasks();
 });
 
-setTimeout(function() {
-  console.log("this message appears in console 5s after refresh");
-}, 5000);
+setInterval(function () {
+  // audits every <... class="card list-group-item"> every 5s
+  $(".card .list-group-item").each(function(index, el) {
+    auditTask(el);
+  });
+}, (1000 * 60) * 30 );  //  30min (1000ms * 60 = 1min)
 
 // load tasks for the first time
 loadTasks();
