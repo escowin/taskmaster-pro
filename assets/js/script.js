@@ -286,5 +286,10 @@ $("#remove-tasks").on("click", function() {
   saveTasks();
 });
 
+setTimeout(function() {
+  console.log("this message appears in console 5s after refresh");
+}, 5000);
+
 // load tasks for the first time
 loadTasks();
+
