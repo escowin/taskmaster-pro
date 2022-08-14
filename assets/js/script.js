@@ -19,10 +19,12 @@ var createTask = function(taskText, taskDate, taskList) {
 };
 
 var loadTasks = function() {
+  // tasks are parsed from Local Storage's JSON. Specifically, task is getting the string value "tasks" that's found in Local Storange.
   tasks = JSON.parse(localStorage.getItem("tasks"));
 
   // if nothing in localStorage, create a new object to track all task status arrays
   if (!tasks) {
+    // tasks is an object of key-value pairs. each key's value is an array
     tasks = {
       toDo: [],
       inProgress: [],
@@ -31,10 +33,10 @@ var loadTasks = function() {
     };
   }
 
-  // loop over object properties
+  // loop over object properties. 
+  // the keys (toDo, inProgress, etc) are passed through as "list" while te values are passed as "arr" in the function.
   $.each(tasks, function(list, arr) {
-    console.log(list, arr);
-    // then loop over sub-array
+    // then loop over sub-array.
     arr.forEach(function(task) {
       createTask(task.text, task.date, list);
     });
@@ -44,9 +46,6 @@ var loadTasks = function() {
 var saveTasks = function() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
-
-
-
 
 // modal was triggered
 $("#task-form-modal").on("show.bs.modal", function() {
@@ -60,7 +59,7 @@ $("#task-form-modal").on("shown.bs.modal", function() {
   $("#modalTaskDescription").trigger("focus");
 });
 
-// save button in modal was clicked
+// save button in modal was clicked. clicking the save button 
 $("#task-form-modal .btn-primary").click(function() {
   // get form values
   var taskText = $("#modalTaskDescription").val();
@@ -80,6 +79,86 @@ $("#task-form-modal .btn-primary").click(function() {
 
     saveTasks();
   }
+});
+
+// function happens when clicking on the <p> within the .list-group element. 
+$(".list-group").on("click", "p", function() {
+  // $ turns this into a jQuery object. trim() follows text() to remove any white space.
+  var text = $(this).text().trim();
+
+  // $("textarea") jQuery finds all existing <textarea> elements
+  // $("<textarea>") jQuery creates new <textarea> element. however, this <textarea> only exists in memory so far.
+  var textInput = $("<textarea>").addClass("form-control").val(text);
+  
+  // replaces <p> with <textarea>.
+  $(this).replaceWith(textInput);
+  // focus is triggered after element change.
+  textInput.trigger("focus");
+});
+
+// blur event triggers when textarea is no longer in focus.
+$(".list-group").on("blur", "textarea", function() {
+  // get current value/text of <textarea>
+  var text = $(this).val().trim();
+
+  // get parent <ul> id attribute
+  var status = $(this)
+    .closest(".list-group")
+    .attr("id") // jQuery gets an attribute. returning an id, which will be 'list-' followed by the category
+    .replace("list-", ""); // removes 'list-' from text. w/o 'list-' the value is now just the category name which matches one of the tasks object arrays.
+
+  // get task's posisition in the list of other <li> elements
+  var index = $(this)
+    .closest(".list-group-item")
+    .index(); // child elements are indexed starting at zero
+
+  // object[returns an array][returns the object at the given index in the array].returns the text property of the object at the given index.
+  // updates task in array and re-saves to localStorage
+  tasks[status][index].text = text;
+  saveTasks();
+
+  // recreate <p>
+  var taskP = $("<p>").addClass("m-1").text(text);
+  // replace <textarea> with <p> element
+  $(this).replaceWith(taskP);
+});
+
+// clicking on task's due date. jQuery delagation method
+$(".list-group").on("click", "span", function() {
+  // gets current text & trim any whitespace
+  var date = $(this).text().trim();
+
+  // creates new <input> element
+  var dateInput = $("<input>")
+    .attr("type", "text") // jQuery attr w/ 2 arguments sets an attribute. <input type="text">
+    .addClass("form-control")
+    .val(date);
+  // swaps out elements
+  $(this).replaceWith(dateInput);
+
+  // automatically focuses on new element
+  dateInput.trigger("focus");
+});
+
+// event listener | when the user clicks outside the due date <span>
+$(".list-group").on("blur", "input[type='text']", function() {
+  // gets current text
+  var date = $(this).val().trim();
+
+  // gets parent <ul> id atrribute | <ul class="list-group" id="...">
+  var status = $(this).closest(".list-group").attr("id").replace("list-", "");
+
+  // gets task's index position among the other <li> elements in the <ul>
+  var index = $(this).closest(".list-group-item").index();
+
+  // updates task in array and re-saves to localStorage
+  tasks[status][index].date = date;
+  saveTasks();
+
+  // recreates <span> with bootsraps classes
+  var taskSpan = $("<span>").addClass("badge badge-primary badge-pill").text(date);
+  // replaces <input> with <span>
+  $(this).replaceWith(taskSpan);
 });
 
 // remove all tasks
