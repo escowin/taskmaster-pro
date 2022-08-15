@@ -155,12 +155,73 @@ $(".list-group").on("blur", "input[type='text']", function() {
   tasks[status][index].date = date;
   saveTasks();
 
-  // recreates <span> with bootsraps classes
+  // recreates <span> with bootstrap classes
   var taskSpan = $("<span>").addClass("badge badge-primary badge-pill").text(date);
   // replaces <input> with <span>
   $(this).replaceWith(taskSpan);
 });
 
+
+// sortable method, jQueryUI | moving tasks within a task list and across task lists.
+// vanilla js: pageContentEl.addEventListener("dragstart", function(event) {});
+$(".card .list-group").sortable({
+  connectWith: $(".card .list-group"),
+  scroll: false,
+  tolerance: "pointer",
+  helper: "clone", // prevents click events from accidentally triggering on original <li>
+  activate: function(event) { // triggers all lists when dragging starts
+    console.log("activate", this);
+  },
+  deactivate: function(event) { //triggers all lists when dragging stops
+    console.log("deactivate", this);
+  },
+  over: function(event) { // triggers when dragged item enters a connected list
+    console.log("over", event.target);
+  },
+  out: function(event) { // triggers when a dragged item leaves a connected list
+    console.log("out", event.target);
+  },
+  update: function(event) { // triggers when a list's contents have changed (items re-ordered, removed, or added)
+    // task data is stored in array
+    var tempArr = [];
+
+    // loops over current set of children in sortable list.
+    // - each() | runs callback function for every item/element in array
+    // - $(this) | inside the callback function, $(this) refers to child eleent at that index.
+    $(this).children().each(function() {
+      var text = $(this).find("p").text().trim();
+      var date = $(this).find("span").text().trim();
+
+      // add task data to the temp array as an object
+      tempArr.push({
+        text: text,
+        date: date
+      });
+    });
+
+    // trims down list id to match object property
+    var arrName = $(this).attr("id").replace("list-", "");
+
+    // updates array on tasks object and save. now tasks stay in status column when browser refreshes
+    tasks[arrName] = tempArr;
+    saveTasks();
+  }
+});
+
+// selects <... id=trash>, applied droppable widget
+$("#trash").droppable({
+  accept: ".card .list-group-item",
+  tolerance: "touch",
+  drop: function(event, ui) { // targets draggable item to remove it from dom. triggers update() which triggers saveTasks
+    ui.draggable.remove();
+  },
+  over: function(event, ui) {
+    console.log("over");
+  },
+  out: function(event, ui) {
+    console.log("out");
+  }
+});
 // remove all tasks
 $("#remove-tasks").on("click", function() {
   for (var key in tasks) {
