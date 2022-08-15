@@ -136,12 +136,21 @@ $(".list-group").on("click", "span", function() {
   // swaps out elements
   $(this).replaceWith(dateInput);
 
+  // enable jquery ui datepicker
+  dateInput.datepicker({
+    minDate: 1,
+    onClose: function() {
+      // forces a change event on dataInput when calendar closes
+      $(this).trigger("change");
+    }
+  });
+
   // automatically focuses on new element
   dateInput.trigger("focus");
 });
 
-// event listener | when the user clicks outside the due date <span>
-$(".list-group").on("blur", "input[type='text']", function() {
+// event listener | the user selects a date from the datepicker above
+$(".list-group").on("change", "input[type='text']", function() {
   // gets current text
   var date = $(this).val().trim();
 
@@ -208,6 +217,11 @@ $(".card .list-group").sortable({
   }
 });
 
+// loads datepicker for <input id="modalDueDate">
+$("#modalDueDate").datepicker({
+  minDate: 1 // sets minimum date one day after now
+});
+
 // selects <... id=trash>, applied droppable widget
 $("#trash").droppable({
   accept: ".card .list-group-item",
@@ -222,6 +236,7 @@ $("#trash").droppable({
     console.log("out");
   }
 });
+
 // remove all tasks
 $("#remove-tasks").on("click", function() {
   for (var key in tasks) {
