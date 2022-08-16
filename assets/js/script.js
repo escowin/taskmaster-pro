@@ -1,21 +1,19 @@
 var tasks = {};
 
 var createTask = function(taskText, taskDate, taskList) {
-  // create elements that make up a task item
+  // create | <li class...><span class... /><p class... /></li>
   var taskLi = $("<li>").addClass("list-group-item");
-  var taskSpan = $("<span>")
-    .addClass("badge badge-primary badge-pill")
-    .text(taskDate);
-  var taskP = $("<p>")
-    .addClass("m-1")
-    .text(taskText);
 
-  // append span and p element to parent li
+  var taskSpan = $("<span>").addClass("badge badge-primary badge-pill").text(taskDate);
+  var taskP = $("<p>").addClass("m-1").text(taskText);
   taskLi.append(taskSpan, taskP);
 
+  // checks due date within <li>
+  auditTask(taskLi);
 
-  // append to ul list on the page
+  // targets <#list-${taskList}>, appends <li>
   $("#list-" + taskList).append(taskLi);
+
 };
 
 var loadTasks = function() {
@@ -45,6 +43,27 @@ var loadTasks = function() {
 
 var saveTasks = function() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
+};
+
+var auditTask = function(taskEl) {
+  // ensures element is getting to the function
+  console.log("each taskEl runs through auditTask");
+  // grabbing the date from the task item by finding its span text"
+  var date = $(taskEl).find("span").text().trim();
+  console.log(date);
+
+  // convert to moment.js object set at 5:00pm bc that's the end of the workday
+  var time = moment(date, "L").set("hour", 17);
+
+  // targets taskEl, removes any of its old classes its elements
+  $(taskEl).removeClass("list-group-item-warning list-group-item-danger");
+
+  // applies new class is task is near/over due date;
+  if (moment().isAfter(time)) {
+    $(taskEl).addClass("list-group-item-danger");
+  }
+
+// ** pause 5.4.6 | ^Check If the Date Is in the Past
 };
 
 // modal was triggered
@@ -138,7 +157,7 @@ $(".list-group").on("click", "span", function() {
 
   // enable jquery ui datepicker
   dateInput.datepicker({
-    minDate: 1,
+    // minDate: 1,
     onClose: function() {
       // forces a change event on dataInput when calendar closes
       $(this).trigger("change");
@@ -178,17 +197,17 @@ $(".card .list-group").sortable({
   scroll: false,
   tolerance: "pointer",
   helper: "clone", // prevents click events from accidentally triggering on original <li>
-  activate: function(event) { // triggers all lists when dragging starts
-    console.log("activate", this);
+  activate: function(event) {
+    console.log("activates all .list-group elements");
   },
-  deactivate: function(event) { //triggers all lists when dragging stops
-    console.log("deactivate", this);
+  deactivate: function(event) {
+    console.log("deactivates all .list-group elements");
   },
-  over: function(event) { // triggers when dragged item enters a connected list
-    console.log("over", event.target);
+  over: function(event) {
+    console.log("<li> is over <ul>");
   },
-  out: function(event) { // triggers when a dragged item leaves a connected list
-    console.log("out", event.target);
+  out: function(event) {
+    console.log("<li> is out of <ul>");
   },
   update: function(event) { // triggers when a list's contents have changed (items re-ordered, removed, or added)
     // task data is stored in array
@@ -219,7 +238,7 @@ $(".card .list-group").sortable({
 
 // loads datepicker for <input id="modalDueDate">
 $("#modalDueDate").datepicker({
-  minDate: 1 // sets minimum date one day after now
+  // minDate: 1
 });
 
 // selects <... id=trash>, applied droppable widget
